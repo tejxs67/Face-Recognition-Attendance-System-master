@@ -1,101 +1,79 @@
-import os  # accessing the os functions
+import os
+import tkinter as tk
+from tkinter import messagebox
+from PIL import Image, ImageTk
 import check_camera
 import Capture_Image
 import Train_Image
 import Recognize
+from threading import Thread
 
-
-# creating the title bar function
-
-def title_bar():
-    os.system('cls')  # for windows
-
-    # title of the program
-
-    print("\t**********************************************")
-    print("\t***** Face Recognition Attendance System *****")
-    print("\t**********************************************")
-
-
-# creating the user main menu function
-
-def mainMenu():
-    title_bar()
-    print()
-    print(10 * "*", "WELCOME MENU", 10 * "*")
-    print("[1] Check Camera")
-    print("[2] Capture Faces")
-    print("[3] Train Images")
-    print("[4] Recognize & Attendance")
-    print("[5] Auto Mail")
-    print("[6] Quit")
-
-    while True:
-        try:
-            choice = int(input("Enter Choice: "))
-
-            if choice == 1:
-                checkCamera()
-                break
-            elif choice == 2:
-                CaptureFaces()
-                break
-            elif choice == 3:
-                Trainimages()
-                break
-            elif choice == 4:
-                RecognizeFaces()
-                break
-            elif choice == 5:
-                os.system("py automail.py")
-                break
-                mainMenu()
-            elif choice == 6:
-                print("Thank You")
-                break
-            else:
-                print("Invalid Choice. Enter 1-4")
-                mainMenu()
-        except ValueError:
-            print("Invalid Choice. Enter 1-4\n Try Again")
-    exit
-
-
-# ---------------------------------------------------------
-# calling the camera test function from check camera.py file
-
+# Function to check the camera
 def checkCamera():
-    check_camera.camer()
-    key = input("Enter any key to return main menu")
-    mainMenu()
+    check_camera.camera()
+    messagebox.showinfo("Info", "Camera check complete. Returning to main menu.")
 
-
-# --------------------------------------------------------------
-# calling the take image function form capture image.py file
-
+# Function to capture faces
 def CaptureFaces():
     Capture_Image.takeImages()
-    key = input("Enter any key to return main menu")
-    mainMenu()
+    messagebox.showinfo("Info", "Face capture complete. Returning to main menu.")
 
-
-# -----------------------------------------------------------------
-# calling the train images from train_images.py file
-
+# Function to train images
 def Trainimages():
     Train_Image.TrainImages()
-    key = input("Enter any key to return main menu")
-    mainMenu()
+    messagebox.showinfo("Info", "Training images complete. Returning to main menu.")
 
-
-# --------------------------------------------------------------------
-# calling the recognize_attendance from recognize.py file
-
-def RecognizeFaces():
+# Function to recognize faces and attendance
+def recognizeFaces():
     Recognize.recognize_attendance()
-    key = input("Enter any key to return main menu")
-    mainMenu()
+    messagebox.showinfo("Info", "Face recognition and attendance complete. Returning to main menu.")
 
+# Function to send auto mail
+def sendAutoMail():
+    os.system("py automail.py")
+    messagebox.showinfo("Info", "Auto mail sent. Returning to main menu.")
 
-# ---------------main driver ------------------
-mainMenu()
+# Function to create a card with an image, text, and a button
+def create_card(frame, image_path, text, command):
+    card_frame = tk.Frame(frame, bd=2, relief=tk.RAISED, padx=10, pady=10)
+    img = Image.open(os.path.join(r"D:\Face-Recognition-Attendance-System-master\img", image_path))
+    img = img.resize((140, 150))
+    img = ImageTk.PhotoImage(img)
+    label_img = tk.Label(card_frame, image=img)
+    label_img.image = img  # Keep reference
+    label_img.pack()
+
+    label_text = tk.Label(card_frame, text=text, font=("Arial", 12, "bold"))
+    label_text.pack()
+
+    button = tk.Button(card_frame, text="Select", command=command, bg="#007BFF", fg="white")
+    button.pack()
+
+    card_frame.pack(side=tk.LEFT, padx=10, pady=10)
+
+# Main GUI application
+def mainGUI():
+    root = tk.Tk()
+    root.title("Face Recognition Attendance System")
+    root.geometry("1080x480")
+
+    title_label = tk.Label(root, text="Face Recognition Attendance System", font=("Arial", 16, "bold"))
+    title_label.pack(pady=10)
+
+    frame = tk.Frame(root)
+    frame.pack()
+
+    create_card(frame, "check.png", "Check Camera", checkCamera)
+    create_card(frame, "capture.png", "Capture Faces", CaptureFaces)
+    create_card(frame, "train.png", "Train Images", Trainimages)
+    create_card(frame, "recognize.png", "Recognize", recognizeFaces)
+    create_card(frame, "mail.png", "Auto Mail", sendAutoMail)
+
+    quit_button = tk.Button(root, text="Quit", command=root.quit, bg="red", fg="white", font=("Arial", 12, "bold"))
+    quit_button.pack(pady=10)
+
+    root.mainloop()
+
+# Main driver
+if __name__ == "__main__":
+    mainGUI()
